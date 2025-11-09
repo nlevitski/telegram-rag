@@ -5,7 +5,12 @@ import { TelegramService } from './telegram.service';
 import { MainCommandsService } from './handlers/commands/main.commands';
 import { DocumentLoaderModule } from 'src/document-loader/document-loader.module';
 import { CustomMessageHandler } from './handlers/custom.handler';
+import { MiddlewareService } from './middleware/middleware.service';
 
+import { KeyboardManager } from './keybords/keyboard.service';
+
+import { GrammyI18nProvider } from './providers/grammy-i18n.provider';
+import { SessionStorageAdapter } from './adapters/session-storage.adapter';
 @Module({})
 export class TelegramModule {
   static forRoot(): DynamicModule {
@@ -22,6 +27,10 @@ export class TelegramModule {
           },
           inject: [ConfigService],
         },
+        GrammyI18nProvider,
+        SessionStorageAdapter,
+        MiddlewareService,
+        KeyboardManager,
         MainCommandsService,
         CustomMessageHandler,
         TelegramService,

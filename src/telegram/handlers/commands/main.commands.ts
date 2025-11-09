@@ -1,39 +1,44 @@
 import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
-import { Bot, Context } from 'grammy';
+import { Bot } from 'grammy';
 import { DrizzleDB } from 'src/db/drizzle.provider';
 
 import { telegramUsers } from 'src/db/drizzle/schema';
 import { DocumentLoader } from 'src/document-loader/document-loader.service';
-// import { DocumentCommandFactory } from './document.command';
+import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
+import { MyContext } from 'src/telegram/types/session';
+
+export type CommandDescriptionItem = {
+  command: string;
+  description: string;
+};
 
 @Injectable()
 export class MainCommandsService implements OnModuleInit {
   private readonly logger = new Logger(MainCommandsService.name);
-
+  private readonly commandsDescription: CommandDescriptionItem[] = [
+    { command: 'start', description: 'Start the bot' },
+    { command: 'help', description: 'Show help text' },
+    { command: 'settings', description: 'Open settings' },
+  ];
   constructor(
-    private readonly bot: Bot<Context>,
+    private readonly bot: Bot<MyContext>,
     private readonly documentLoader: DocumentLoader,
     @Inject(DrizzleDB) private readonly db: DrizzleDB,
-    // private readonly documentCommandFactory: DocumentCommandFactory,
+    private readonly keyboardManager: KeyboardManager,
   ) {}
 
   onModuleInit() {
-    // Инициализируем все команды
-    // this.commands = [...this.documentCommandFactory.createCommands()];
-
-    // Регистрируем команды в боте
     this.commandRegister();
-
-    // Устанавливаем команды в меню бота
-    // await this.setBotCommands();
-
-    // this.logger.log(`✅ Registered ${this.commands.length} commands`);
+    this.bot.api.setMyCommands(this.commandsDescription);
   }
 
   private commandRegister() {
     this.bot.command('start', this.startCommand);
     this.bot.command('help', this.helpCommand);
     this.bot.command('settings', this.settingsCommand);
+    this.bot.command('select_locale', this.selectLocaleCommand);
+    this.bot.command('set_locale_en', this.setLocaleEnCommand);
+    this.bot.command('set_locale_ru', this.setLocaleRuCommand);
     this.bot.command('technology', this.technologyCommand);
     this.bot.command('mining', this.miningCommand);
     this.bot.command('priceandmarket', this.priceAndMarketCommand);
@@ -41,89 +46,59 @@ export class MainCommandsService implements OnModuleInit {
     this.bot.command('community', this.communityCommand);
   }
 
-  private startCommand = async (ctx: Context) => {
-    await ctx.reply('start');
+  private startCommand = async (ctx: MyContext) => {
+    await ctx.reply(ctx.t('greeting'));
   };
-  private helpCommand = async (ctx: Context) => {
+  private helpCommand = async (ctx: MyContext) => {
     const result = this.db.select().from(telegramUsers).all();
     console.log('result: ', result);
     await ctx.reply('help');
   };
-  private settingsCommand = async (ctx: Context) => {
-    await ctx.reply('settings');
+  private settingsCommand = async (ctx: MyContext) => {
+    await ctx.reply('settings', {
+      reply_markup: this.keyboardManager.getSettingsMenu(ctx),
+    });
   };
+  private selectLocaleCommand = async (ctx: MyContext) => {
+    // const keyboard = new Keyboard();
 
-  private aboutCommand = async (ctx: Context) => {
+    // keyboard.text('English').text('Русский').row().resized();
+    await ctx.reply('Select language', {
+      reply_markup: this.keyboardManager.getLanguageMenu(ctx),
+    });
+  };
+  private aboutCommand = async (ctx: MyContext) => {
     const result = this.documentLoader.getDocumentContent('commands/about');
     await ctx.reply(result || 'content non found');
   };
-  private priceAndMarketCommand = async (ctx: Context) => {
+  private priceAndMarketCommand = async (ctx: MyContext) => {
     const content = this.documentLoader.getDocumentContent(
       'commands/price_and_market',
     );
     await ctx.reply(content);
   };
-  private technologyCommand = async (ctx: Context) => {
+  private technologyCommand = async (ctx: MyContext) => {
     const content = this.documentLoader.getDocumentContent(
       'commands/technology',
     );
     await ctx.reply(content);
   };
-  private communityCommand = async (ctx: Context) => {
+  private communityCommand = async (ctx: MyContext) => {
     const content =
       this.documentLoader.getDocumentContent('commands/community');
     await ctx.reply(content);
   };
-  private miningCommand = async (ctx: Context) => {
+  private miningCommand = async (ctx: MyContext) => {
     const content = this.documentLoader.getDocumentContent('commands/mining');
     await ctx.reply(content);
   };
+  private setLocaleRuCommand = async (ctx: MyContext) => {
+    await ctx.i18n.setLocale('ru');
+    await ctx.reply(ctx.t('current_locale'));
+  };
 
-  // register(bot: Bot<Context>) {
-  //   this.commands.forEach((commandInstance) => {
-  //     const { command: commandName } = commandInstance.metadata;
-
-  //     // Регистрируем обработчик команды
-  //     bot.command(commandName, async (ctx) => {
-  //       try {
-  //         await commandInstance.executeWithMiddleware(ctx);
-  //       } catch (error) {
-  //         this.logger.error(`Error executing command /${commandName}:`, error);
-  //         await ctx.reply(
-  //           '❌ Произошла ошибка при выполнении команды. Попробуйте позже.',
-  //         );
-  //       }
-  //     });
-  //   });
-
-  // Добавляем обработчик для неизвестных команд
-  // bot.on('message:text', async (ctx) => {
-  //   if (ctx.message.text.startsWith('/')) {
-  //     await ctx.reply(
-  //       '❌ Неизвестная команда. Используйте /help для получения списка доступных команд.',
-  //     );
-  //   }
-  // });
+  private setLocaleEnCommand = async (ctx: MyContext) => {
+    await ctx.i18n.setLocale('en');
+    await ctx.reply(ctx.t('current_locale'));
+  };
 }
-
-// getCommands() {
-//   return this.commands.map((command) => ({
-//     command: command.metadata.command,
-//     description: command.metadata.description || '',
-//   }));
-// }
-
-// private async setBotCommands() {
-//   try {
-//     const commands = this.getCommands();
-//     await this.bot.api.setMyCommands(commands);
-//     this.logger.log('✅ Bot menu commands updated');
-//   } catch (error) {
-//     this.logger.error('Failed to set bot commands:', error);
-//   }
-// }
-
-// Вспомогательный метод для получения команды по имени
-// getCommand(commandName: string): BaseCommand | undefined {
-//   return this.commands.find((cmd) => cmd.metadata.command === commandName);
-// }

@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { DrizzleDB } from './drizzle.provider';
 import * as schema from './drizzle/schema';
+import { UserService } from './user.service';
 
 @Module({})
 export class DatabaseModule {
@@ -22,8 +23,9 @@ export class DatabaseModule {
           },
           inject: [ConfigService],
         },
+        UserService,
       ],
-      exports: [DrizzleDB],
+      exports: [DrizzleDB, UserService],
     };
   }
 }

@@ -8,6 +8,7 @@ export class CustomMessageHandler implements OnModuleInit {
     this.bot.on('message:text', this.customMessageHandler);
   }
   private customMessageHandler = async (ctx: Context) => {
-    await ctx.reply('Custom message handle');
+    const result = ctx.message!.text;
+    await ctx.reply(result || '');
   };
 }

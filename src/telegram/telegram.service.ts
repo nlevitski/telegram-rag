@@ -5,19 +5,13 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Bot, Context } from 'grammy';
-import { DocumentLoader } from 'src/document-loader/document-loader.service';
-// import { MainCommandsService } from './handlers/commands/main.commands';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
   private isRunning = false;
   private readonly logger = new Logger(TelegramService.name);
 
-  constructor(
-    private readonly bot: Bot<Context>,
-    private readonly document: DocumentLoader,
-    // private readonly commandsService: MainCommandsService,
-  ) {}
+  constructor(private readonly bot: Bot<Context>) {}
 
   async onModuleInit() {
     this.logger.log('🔍 TelegramService onModuleInit called');

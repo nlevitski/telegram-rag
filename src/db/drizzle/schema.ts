@@ -25,11 +25,11 @@ export const telegramUsers = sqliteTable('telegram_users', {
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date(),
   ),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(
-    () => new Date(),
-  ),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date()),
   lastInteractionAt: integer('last_interaction_at', { mode: 'timestamp' }),
 });
 
 export type TelegramUser = typeof telegramUsers.$inferSelect;
-export type NewTelegramUser = typeof telegramUsers.$inferInsert;
+export type InsertTelegramUser = typeof telegramUsers.$inferInsert;
