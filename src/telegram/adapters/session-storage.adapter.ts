@@ -13,7 +13,10 @@ export class SessionStorageAdapter implements StorageAdapter<SessionData> {
     const telegramId = parseInt(key);
     const user = this.userService.getUserById(telegramId);
     return user
-      ? { telegramId: user.telegramId, __language_code: user.locale }
+      ? {
+          telegramId: user.telegramId,
+          __language_code: user.locale,
+        }
       : undefined;
   }
   write(key: string, value: SessionData): void {
