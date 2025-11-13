@@ -22,6 +22,7 @@
     "drizzle:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@grammyjs/conversations": "^2.1.0",
     "@grammyjs/i18n": "^1.1.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -32,6 +33,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "grammy": "^1.38.3",
+    "grammy-scenes": "^10.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "telegram-markdown-v2": "^0.0.4",

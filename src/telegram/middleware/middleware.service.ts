@@ -3,14 +3,16 @@ import { Bot, session } from 'grammy';
 import { I18n } from '@grammyjs/i18n';
 import { SessionStorageAdapter } from '../adapters/session-storage.adapter';
 import { MyContext } from '../types/session';
+import { ConversationManager } from '../conversation/converstion.service';
+import { conversations, createConversation } from '@grammyjs/conversations';
 
 @Injectable()
 export class MiddlewareService implements OnModuleInit {
   constructor(
     private readonly bot: Bot<MyContext>,
-    // private readonly userService: UserService,
     @Inject('GRAMMY_I18N') private readonly i18n: I18n<MyContext>,
     private readonly sessionStorage: SessionStorageAdapter,
+    private readonly conversationManager: ConversationManager,
   ) {}
   onModuleInit() {
     this.setupSession();
@@ -23,23 +25,7 @@ export class MiddlewareService implements OnModuleInit {
   }
   private setupMiddlewares() {
     this.bot.use(this.i18n);
+    this.bot.use(conversations());
+    this.bot.use(createConversation(this.conversationManager.education));
   }
-
-  // private userSessionMiddleware() {
-  //   return async (ctx: MyContext, next: () => Promise<void>) => {
-  //     if (!ctx.from) {
-  //       await next();
-  //       return;
-  //     }
-  //     if (!ctx.session.telegramId) {
-  //       const user = this.userService.findOrCreateUser(ctx.from);
-
-  //       ctx.session.telegramId = user.telegramId;
-  //       ctx.session.locale = user.locale;
-  //       ctx.session.step = 'main_menu';
-  //     }
-  //     console.log('ctx.session----->: ', ctx.session);
-  //     await next();
-  //   };
-  // }
 }

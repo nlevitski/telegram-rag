@@ -55,6 +55,7 @@ export class MainHandlersService implements OnModuleInit {
     );
     this.bot.hears(this.hears.enLocale, this.setEnLocale);
     this.bot.hears(this.hears.ruLocale, this.setRuLocale);
+    this.bot.hears('step', this.mainCommandsService.echoStepCommand);
   }
   private setEnLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');

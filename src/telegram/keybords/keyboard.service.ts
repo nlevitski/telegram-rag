@@ -21,7 +21,9 @@ export class KeyboardManager {
       .text(ctx.t('settings'))
       .resized();
   }
-
+  public getLessonsNavigate(ctx: MyContext): Keyboard {
+    return new Keyboard().text(ctx.t('back')).text(ctx.t('next_lesson'));
+  }
   public getSettingsMenu(ctx: MyContext): Keyboard {
     return new Keyboard()
       .text(ctx.t('language'))
@@ -41,5 +43,14 @@ export class KeyboardManager {
 
   public getBackOnly(ctx: MyContext): Keyboard {
     return new Keyboard().text(ctx.t('back')).resized();
+  }
+  public getConversationStart(ctx: MyContext): Keyboard {
+    return new Keyboard().text(ctx.t('back')).text(ctx.t('next')).resized();
+  }
+  public getConversationProcess(ctx: MyContext): Keyboard {
+    return new Keyboard().text(ctx.t('back')).text(ctx.t('next')).resized();
+  }
+  public getConversationEnd(ctx: MyContext): Keyboard {
+    return new Keyboard().text(ctx.t('back')).text(ctx.t('done')).resized();
   }
 }

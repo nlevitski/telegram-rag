@@ -36,7 +36,7 @@ export class DocumentLoader implements OnModuleInit {
     this.logger.log('document loader init ✅');
     await this.findTargetFiles();
     await this.parseFilesToMapWithContent(this.contentMap);
-    const priceMarketContent = this.contentMap.get('commands/price_and_market');
+    const priceMarketContent = this.contentMap.get('lessons/lesson_3');
     if (priceMarketContent) {
       const englishContent = priceMarketContent.get('en');
       if (englishContent) {
