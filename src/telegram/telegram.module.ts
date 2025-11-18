@@ -12,7 +12,7 @@ import { KeyboardManager } from './keybords/keyboard.service';
 import { GrammyI18nProvider } from './providers/grammy-i18n.provider';
 import { SessionStorageAdapter } from './adapters/session-storage.adapter';
 import { MainHandlersService } from './handlers/handlers/main.handlers';
-import { ConversationManager } from './conversation/converstion.service';
+// import { ConversationManager } from './conversation/converstion.service';
 @Module({})
 export class TelegramModule {
   static forRoot(): DynamicModule {
@@ -29,11 +29,11 @@ export class TelegramModule {
           },
           inject: [ConfigService],
         },
-        GrammyI18nProvider,
-        SessionStorageAdapter,
-        MiddlewareService,
         KeyboardManager,
-        ConversationManager,
+        SessionStorageAdapter,
+        GrammyI18nProvider,
+        // ConversationManager,
+        MiddlewareService,
         MainCommandsService,
         MainHandlersService,
         CustomMessageHandler,

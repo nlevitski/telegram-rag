@@ -4,15 +4,20 @@ import {
   type Conversation,
   type ConversationFlavor,
 } from '@grammyjs/conversations';
+
 export interface SessionData {
-  telegramId: number;
+  telegramId?: number;
   step?: string;
   locale?: string;
   __language_code: string;
-  tempData?: any;
+  conversation?: Record<string, any>;
 }
 
 export type MyContext = ConversationFlavor<
   Context & SessionFlavor<SessionData> & I18nFlavor
 >;
-export type MyConversation = Conversation<MyContext>;
+export type MyConversationContext = Context &
+  SessionFlavor<SessionData> &
+  I18nFlavor;
+
+export type MyConversation = Conversation<MyContext, MyConversationContext>;

@@ -59,14 +59,26 @@ export class MainHandlersService implements OnModuleInit {
   }
   private setEnLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');
+    if (ctx.session.step === 'select_language') {
+      return this.replySettings(ctx);
+    }
     await ctx.reply(ctx.t('current_locale'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
   private setRuLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('ru');
+    if (ctx.session.step === 'select_language') {
+      return this.replySettings(ctx);
+    }
     await ctx.reply(ctx.t('current_locale'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
+    });
+  };
+  private replySettings = async (ctx: MyContext) => {
+    ctx.session.step = 'settings';
+    await ctx.reply(ctx.t('current_locale'), {
+      reply_markup: this.keyboardManager.getSettingsMenu(ctx),
     });
   };
 }

@@ -62,8 +62,7 @@ export class MainCommandsService implements OnModuleInit {
   }
 
   public startCommand = async (ctx: MyContext) => {
-    ctx.session.step = 'start';
-    console.log('CTX SESSION ----> :\n', ctx.session);
+    ctx.session.step = 'main_menu';
     await ctx.reply(ctx.t('greeting'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
@@ -75,12 +74,13 @@ export class MainCommandsService implements OnModuleInit {
   };
   public settingsCommand = async (ctx: MyContext) => {
     ctx.session.step = 'settings';
-    await ctx.reply('settings', {
+    await ctx.reply(ctx.t('settings'), {
       reply_markup: this.keyboardManager.getSettingsMenu(ctx),
     });
   };
   public selectLocaleCommand = async (ctx: MyContext) => {
-    await ctx.reply('Select language', {
+    ctx.session.step = 'select_language';
+    await ctx.reply(ctx.t('select_language'), {
       reply_markup: this.keyboardManager.getLanguageMenu(ctx),
     });
   };
@@ -132,18 +132,37 @@ export class MainCommandsService implements OnModuleInit {
   };
 
   public backCommand = async (ctx: MyContext) => {
-    await ctx.reply(ctx.t('back'), {
+    if (ctx.session.step === 'select_language') {
+      ctx.session.step = 'settings';
+      return await ctx.reply(ctx.t('settings'), {
+        reply_markup: this.keyboardManager.getSettingsMenu(ctx),
+      });
+    }
+    ctx.session.step = 'main_menu';
+    return await ctx.reply(ctx.t('back'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
 
   public setLocaleRuCommand = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('ru');
+    if (ctx.session.step === 'select_language') {
+      ctx.session.step = 'settings';
+      return await ctx.reply(ctx.t('settings'), {
+        reply_markup: this.keyboardManager.getSettingsMenu(ctx),
+      });
+    }
     await ctx.reply(ctx.t('current_locale'));
   };
 
   public setLocaleEnCommand = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');
+    if (ctx.session.step === 'select_language') {
+      ctx.session.step = 'settings';
+      return await ctx.reply(ctx.t('settings'), {
+        reply_markup: this.keyboardManager.getSettingsMenu(ctx),
+      });
+    }
     await ctx.reply(ctx.t('current_locale'));
   };
   public echoStepCommand = async (ctx: MyContext) => {

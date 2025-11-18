@@ -4,6 +4,7 @@ settings = 🛠️ Settings
 language = 🌍 Language
 language_en = 🇬🇧 English
 language_ru = 🇷🇺 Russian
+select_language = 🌍 Select Lanuage
 current_locale = 🇬🇧 English
 back = ↩ Back
 next = ↪ Next
