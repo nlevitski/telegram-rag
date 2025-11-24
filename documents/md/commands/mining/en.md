@@ -9,6 +9,4 @@ Profitable on any modern CPU
 
 Start in 5 min
 
-1. Download official miner (https://github.com/qubic-li/miner/releases)
-2. Run → enter wallet → mine
-3. Join mining chat (https://t.me/qubic_mining) for help
+💬 (https://discord.com/invite/qubic)

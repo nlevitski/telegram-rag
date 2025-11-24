@@ -8,6 +8,6 @@
 • Throughput: 1 000 000+ TPS design goal
 
 Developer resources
-💻 GitHub (https://github.com/qubic-li)
-🔧 API docs (https://docs.qubic.li/api)
-🚀 Testnet (https://testnet.qubic.li/)
+💻 GitHub (https://github.com/qubic)
+🔧 API docs (???)
+🚀 Testnet (???)

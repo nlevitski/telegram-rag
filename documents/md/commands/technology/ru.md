@@ -8,5 +8,5 @@
 • До 1 млн TPS
 
 Разработчикам
-💻 GitHub (https://github.com/qubic-li)
-🔧 API (https://docs.qubic.li/api)
+💻 GitHub (https://github.com/qubic)
+🔧 API (???)

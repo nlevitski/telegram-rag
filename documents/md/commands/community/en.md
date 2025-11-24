@@ -3,10 +3,10 @@
 ## 🌍 Qubic Community – 200 k+ members
 
 Main chats
-📱 English group (https://t.me/qubic_li) (85 k)
+📱 English group (https://t.me/qubic_network)
 💬 Mining chat (https://t.me/qubic_mining)
-🐦 Twitter (https://twitter.com/qubic_li)
+🐦 X (Twitter) (https://x.com/_qubic_)
 
 Code & docs
-💻 GitHub org (https://github.com/qubic-li)
-📚 Community wiki (https://github.com/qubic-li/wiki)
+💻 GitHub (https://github.com/qubic)
+📚 Community wiki (???)

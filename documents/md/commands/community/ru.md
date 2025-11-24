@@ -3,9 +3,9 @@
 ## 🌍 Сообщество Qubic – 200 тыс+ участников
 
 Чаты
-📱 Основной англ. (https://t.me/qubic_li)
+📱 Основной англ. (https://t.me/qubic_network)
 💬 Майнеры (https://t.me/qubic_mining)
 
 Код и знания
-💻 GitHub (https://github.com/qubic-li)
-📚 Wiki (https://github.com/qubic-li/wiki)
+💻 GitHub (https://github.com/qubic)
+📚 Wiki (???)
