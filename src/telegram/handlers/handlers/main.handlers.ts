@@ -15,15 +15,19 @@ export class MainHandlersService implements OnModuleInit {
     settings: ['🛠️ Settings', '🛠️ Настройки'],
     language: ['🌍 Language', '🌍 Язык'],
     technology: ['⚡️ Technology', '⚡️ Технологии'],
+    education: ['🎓 Education', '🎓 Обучение'],
+    nft: ['🔐 NFT'],
+    done: ['✅ Done', '✅ Готово'],
     back: ['↩ Back', '↩ Назад'],
     enLocale: ['🇬🇧 English', '🇬🇧 Английский'],
     ruLocale: ['🇷🇺 Russian', '🇷🇺 Русский'],
+    ask: ['🌀 Ask any question', '🌀 Задать произвольный вопрос']
   };
   constructor(
     private readonly bot: Bot<MyContext>,
     private readonly mainCommandsService: MainCommandsService,
     private readonly keyboardManager: KeyboardManager,
-  ) {}
+  ) { }
   onModuleInit() {
     this.hearsRegister();
   }
@@ -44,6 +48,11 @@ export class MainHandlersService implements OnModuleInit {
       this.mainCommandsService.technologyCommand,
     );
     this.bot.hears(
+      this.hears.education,
+      this.mainCommandsService.educationCommand,
+    );
+    this.bot.hears(this.hears.nft, this.mainCommandsService.nftCommand);
+    this.bot.hears(
       this.hears.settings,
       this.mainCommandsService.settingsCommand,
     );
@@ -53,10 +62,17 @@ export class MainHandlersService implements OnModuleInit {
       this.hears.language,
       this.mainCommandsService.selectLocaleCommand,
     );
+    this.bot.hears(this.hears.done, this.doneEducation);
     this.bot.hears(this.hears.enLocale, this.setEnLocale);
     this.bot.hears(this.hears.ruLocale, this.setRuLocale);
     this.bot.hears('step', this.mainCommandsService.echoStepCommand);
+    this.bot.hears(this.hears.ask, this.mainCommandsService.askAnyCommand);
   }
+  private doneEducation = async (ctx: MyContext) => {
+    await ctx.reply(ctx.t('main_menu'), {
+      reply_markup: this.keyboardManager.getMainMenu(ctx),
+    });
+  };
   private setEnLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');
     if (ctx.session.step === 'select_language') {

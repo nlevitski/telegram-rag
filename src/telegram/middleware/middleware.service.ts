@@ -120,6 +120,16 @@ export class MiddlewareService implements OnModuleInit {
     const { message } = await conversations.waitFor('message:text');
     if (options.step === 1) {
       if (message.text === back) {
+        // Exit conversation and return to main menu
+        const { mainMenuKeyboard, backMessage } = await conversations.external(
+          (ctx) => ({
+            mainMenuKeyboard: this.keyboardManager.getMainMenu(ctx),
+            backMessage: ctx.t('back'),
+          }),
+        );
+        await ctx.reply(backMessage, {
+          reply_markup: mainMenuKeyboard,
+        });
         return;
       } else if (message.text === next) {
         options.step += 1;
@@ -145,6 +155,13 @@ export class MiddlewareService implements OnModuleInit {
         return;
       }
     }
+
+    // If user sent something else, ask them to use navigation buttons
+    const useNavButtonsMessage = await conversations.external((ctx) =>
+      ctx.t('use_nav_buttons'),
+    );
+    await ctx.reply(useNavButtonsMessage);
+    await this.handleStep(conversations, ctx, options);
 
     // const keyboard = await conversations.external(() => {
     //   if (step === 1) {
@@ -225,17 +242,20 @@ export class MiddlewareService implements OnModuleInit {
   };
 
   private education = async (conversation: MyConversation, ctx: MyContext) => {
-    // const locale = await conversation.external(async () =>
-    //   ctx.i18n.getLocale(),
-    // );
-    // const { next, back, done } = await conversation.external(() => ({
-    //   next: ctx.t('next'),
-    //   back: ctx.t('back'),
-    //   done: ctx.t('done'),
-    // }));
     await this.handleStep(conversation, ctx, {
       step: 1,
       totalSteps: 6,
+    });
+
+    // Return to main menu after conversation ends
+    const { mainMenuKeyboard, doneMessage } = await conversation.external(
+      (ctx) => ({
+        mainMenuKeyboard: this.keyboardManager.getMainMenu(ctx),
+        doneMessage: ctx.t('done_education'),
+      }),
+    );
+    await ctx.reply(doneMessage, {
+      reply_markup: mainMenuKeyboard,
     });
     // const translations = await conversation.external(() => ({
     //   back: ctx1.t('back'),

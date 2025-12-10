@@ -1,10 +1,11 @@
 // src/qdrant/qdrant.module.ts
 import { Module } from '@nestjs/common';
 import { QdrantService } from './qdrant.service';
-import { EmbeddingsService } from 'src/embeddings/embeddings.service';
+import { EmbeddingModule } from '../embeddings/embeddings.module';
 
 @Module({
-  providers: [QdrantService, EmbeddingsService],
+  imports: [EmbeddingModule],
+  providers: [QdrantService],
   exports: [QdrantService],
 })
 export class QdrantModule {}

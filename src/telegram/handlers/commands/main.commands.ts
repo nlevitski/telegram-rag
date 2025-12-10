@@ -29,6 +29,7 @@ export class MainCommandsService implements OnModuleInit {
     { command: 'technology', description: 'Technology Info' },
     { command: 'step', description: 'Echo current step' },
     { command: 'education', description: 'Lessons' },
+    { command: 'ask', description: 'Ask any question' },
   ];
   constructor(
     private readonly bot: Bot<MyContext>,
@@ -56,7 +57,8 @@ export class MainCommandsService implements OnModuleInit {
     this.bot.command('priceandmarket', this.priceAndMarketCommand);
     this.bot.command('technology', this.technologyCommand);
     this.bot.command('education', this.educationCommand);
-
+    this.bot.command('nft', this.nftCommand);
+    this.bot.command('ask', this.askAnyCommand);
     this.bot.command('back', this.backCommand);
     this.bot.command('step', this.echoStepCommand);
   }
@@ -68,9 +70,14 @@ export class MainCommandsService implements OnModuleInit {
     });
   };
   public helpCommand = async (ctx: MyContext) => {
-    const result = this.db.select().from(telegramUsers).all();
-    console.log('result: ', result);
-    await ctx.reply('help');
+    // const result = this.db.select().from(telegramUsers).all();
+    const locale = await ctx.i18n.getLocale();
+    const content = this.documentLoader.getDocumentContent(
+      'commands/help',
+      locale,
+    );
+
+    await ctx.reply(content);
   };
   public settingsCommand = async (ctx: MyContext) => {
     ctx.session.step = 'settings';
@@ -130,7 +137,14 @@ export class MainCommandsService implements OnModuleInit {
     );
     await ctx.reply(content);
   };
-
+  public nftCommand = async (ctx: MyContext) => {
+    const locale = await ctx.i18n.getLocale();
+    const content = this.documentLoader.getDocumentContent(
+      'commands/nft',
+      locale,
+    );
+    await ctx.reply(content);
+  };
   public backCommand = async (ctx: MyContext) => {
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
@@ -168,5 +182,10 @@ export class MainCommandsService implements OnModuleInit {
   public echoStepCommand = async (ctx: MyContext) => {
     console.log('CTX STEP: ', ctx.session);
     await ctx.reply(ctx.session.step || 'no step');
+  };
+  public askAnyCommand = async (ctx: MyContext) => {
+    return await ctx.reply(ctx.t('askAnyQuestion'), {
+      reply_markup: this.keyboardManager.getMainMenu(ctx),
+    });
   };
 }

@@ -21,18 +21,35 @@ export class QdrantService implements OnModuleInit {
   }
 
   private async ensureCollection() {
-    const collections = await this.client.getCollections();
-    const exists = collections.collections.some(
-      (c) => c.name === this.collectionName,
-    );
+    try {
+      const collections = await this.client.getCollections();
+      const exists = collections.collections.some(
+        (c) => c.name === this.collectionName,
+      );
 
-    if (!exists) {
-      await this.client.createCollection(this.collectionName, {
-        vectors: {
-          size: 384,
-          distance: 'Cosine',
-        },
-      });
+      if (!exists) {
+        await this.client.createCollection(this.collectionName, {
+          vectors: {
+            size: 384,
+            distance: 'Cosine',
+          },
+        });
+        console.log(`Created collection: ${this.collectionName}`);
+      } else {
+        console.log(`Collection exists: ${this.collectionName}`);
+      }
+    } catch (error) {
+      console.error('Failed to connect to Qdrant:', error);
+      throw error;
+    }
+  }
+
+  async checkConnection(): Promise<boolean> {
+    try {
+      await this.client.getCollections();
+      return true;
+    } catch {
+      return false;
     }
   }
 
@@ -71,17 +88,41 @@ export class QdrantService implements OnModuleInit {
   }
 
   // Поиск с фильтрацией
-  async search(query: string, limit: number = 5, filter?: Record<string, any>) {
+  async search(
+    query: string,
+    limit: number = 5,
+    score_threshold?: number, // Optional threshold
+    filter?: Record<string, any>,
+  ) {
     const queryVector = await this.embeddingsService.generateEmbedding(query);
 
     const results = await this.client.search(this.collectionName, {
       vector: queryVector,
       limit,
+      score_threshold, // Pass to Qdrant
       with_payload: true,
       filter: filter ? { must: [filter] } : undefined,
     });
 
     return results;
+  }
+
+  // Получить конкретный чанк по индексу
+  async getChunk(filename: string, chunkIndex: number) {
+    const filter = {
+      must: [
+        { key: 'filename', match: { value: filename } },
+        { key: 'chunk_index', match: { value: chunkIndex } },
+      ],
+    };
+
+    const results = await this.client.scroll(this.collectionName, {
+      filter,
+      limit: 1,
+      with_payload: true,
+    });
+
+    return results.points[0] || null;
   }
 
   // Очистка коллекции

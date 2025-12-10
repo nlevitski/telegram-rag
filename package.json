@@ -24,6 +24,7 @@
   "dependencies": {
     "@grammyjs/conversations": "^2.1.0",
     "@grammyjs/i18n": "^1.1.2",
+    "@langchain/core": "^1.1.4",
     "@langchain/openai": "^1.1.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

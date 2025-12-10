@@ -12,13 +12,15 @@ import { KeyboardManager } from './keybords/keyboard.service';
 import { GrammyI18nProvider } from './providers/grammy-i18n.provider';
 import { SessionStorageAdapter } from './adapters/session-storage.adapter';
 import { MainHandlersService } from './handlers/handlers/main.handlers';
+import { LlmModule } from '../llm/llm.module';
+import { QdrantModule } from '../qdrant/qdrant.module';
 // import { ConversationManager } from './conversation/converstion.service';
 @Module({})
 export class TelegramModule {
   static forRoot(): DynamicModule {
     return {
       module: TelegramModule,
-      imports: [ConfigModule, DocumentLoaderModule],
+      imports: [ConfigModule, DocumentLoaderModule, LlmModule, QdrantModule],
       providers: [
         {
           provide: Bot,

@@ -4,7 +4,7 @@ import { MyContext } from '../types/session';
 
 @Injectable()
 export class KeyboardManager {
-  constructor() {}
+  constructor() { }
 
   public getMainMenu(ctx: MyContext): Keyboard {
     return new Keyboard()
@@ -17,7 +17,10 @@ export class KeyboardManager {
       .text(ctx.t('price_and_market'))
       .text(ctx.t('technology'))
       .row()
+      .text(ctx.t('nft'))
       .text(ctx.t('help'))
+      .row()
+      .text(ctx.t('ask'))
       .text(ctx.t('settings'))
       .resized();
   }
