@@ -6,6 +6,43 @@ import { QdrantService } from '../../qdrant/qdrant.service';
 
 @Injectable()
 export class CustomMessageHandler implements OnModuleInit {
+  // List of known button texts that should NOT trigger RAG
+  private readonly knownButtons = [
+    '🤖 About Qubic',
+    '🤖 О Qubic',
+    '🤝 Community',
+    '🤝 Сообщество',
+    '❓ Help',
+    '❓ Помощь',
+    '⛏️ Mining',
+    '⛏️ Майнинг',
+    '💰 Price & Market',
+    '💰 Цена и рынок',
+    '🛠️ Settings',
+    '🛠️ Настройки',
+    '🌍 Language',
+    '🌍 Язык',
+    '⚡️ Technology',
+    '⚡️ Технологии',
+    '🎓 Education',
+    '🎓 Обучение',
+    '🔐 NFT',
+    '✅ Done',
+    '✅ Готово',
+    '↩ Back',
+    '↩ Назад',
+    '🇬🇧 English',
+    '🇬🇧 Английский',
+    '🇷🇺 Russian',
+    '🇷🇺 Русский',
+    '🌀 Ask any question',
+    '🌀 Задать произвольный вопрос',
+    '⬅️ Back',
+    '⬅️ Назад',
+    '➡️ Next',
+    '➡️ Далее',
+  ];
+
   constructor(
     private readonly bot: Bot<MyContext>,
     private readonly llmService: LlmService,
@@ -19,10 +56,22 @@ export class CustomMessageHandler implements OnModuleInit {
     const query = ctx.message?.text || '';
     if (!query) return;
 
-    // Skip if conversation is active
-    if (ctx.conversation && Object.keys(ctx.conversation).length > 0) {
+    console.log('📨 CustomMessageHandler: Received message:', query);
+    console.log('📊 Session step:', ctx.session.step);
+
+    // Skip if it's a command (starts with /)
+    if (query.startsWith('/')) {
+      console.log('⏭️ Skipping: message is a command');
       return;
     }
+
+    // Skip if it's a known button
+    if (this.knownButtons.includes(query)) {
+      console.log('⏭️ Skipping: message is a known button');
+      return;
+    }
+
+    console.log('✅ Processing as RAG query:', query);
 
     // Notify user we are thinking (optional, but good UX)
     await ctx.replyWithChatAction('typing');
