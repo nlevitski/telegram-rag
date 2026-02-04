@@ -14,7 +14,7 @@ export class LlmService {
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GLM_API_KEY');
     this.model = new ChatOpenAI({
-      modelName: 'GLM-4.5-Flash',
+      modelName: 'GLM-4.7-Flash',
       temperature: 0.7,
       openAIApiKey: apiKey,
       apiKey: apiKey,

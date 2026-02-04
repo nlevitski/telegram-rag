@@ -31,6 +31,7 @@ ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/src/telegram/locales ./src/telegram/locales
 
 # Если Xenova скачивает модели в папку .cache, ее стоит прокинуть или сохранить
 # RUN mkdir -p /.cache && chmod 777 /.cache

@@ -12,6 +12,9 @@ services:
       # Другие переменные из вашего .env
     depends_on:
       - qdrant
+    volumes:
+      - ./data:/app/data:ro
+      - ./documents:/app/documents:ro
     networks:
       - rag_network
 
