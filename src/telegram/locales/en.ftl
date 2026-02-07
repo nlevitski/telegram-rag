@@ -23,3 +23,4 @@ use_nav_buttons = Use Navigation Buttons ⬇️
 done_education = ✅ Education is done, return to the Main menu
 ask = 🌀 Ask any question
 askAnyQuestion = 🌀 You can ask arbitrary questions while in the main menu
+searching = ⏳ Searching for information...

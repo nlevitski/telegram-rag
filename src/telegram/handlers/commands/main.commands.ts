@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { DrizzleDB } from 'src/db/drizzle.provider';
-import { telegramUsers } from 'src/db/drizzle/schema';
 import { DocumentLoader } from 'src/document-loader/document-loader.service';
 import { UserService } from 'src/db/user.service';
 import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
@@ -72,7 +71,6 @@ export class MainCommandsService implements OnModuleInit {
     });
   };
   public helpCommand = async (ctx: MyContext) => {
-    // const result = this.db.select().from(telegramUsers).all();
     const locale = await ctx.i18n.getLocale();
     const content = this.documentLoader.getDocumentContent(
       'commands/help',

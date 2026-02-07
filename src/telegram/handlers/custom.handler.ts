@@ -1,11 +1,16 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { MyContext } from '../types/session';
 import { LlmService } from '../../llm/llm.service';
 import { QdrantService } from '../../qdrant/qdrant.service';
+import {
+  convertMarkdownToTelegramHtml,
+  escapeHtml,
+} from '../utils/telegram-html';
 
 @Injectable()
 export class CustomMessageHandler implements OnModuleInit {
+  private readonly logger = new Logger(CustomMessageHandler.name);
   // List of known button texts that should NOT trigger RAG
   private readonly knownButtons = [
     '🤖 About Qubic',
@@ -69,11 +74,17 @@ export class CustomMessageHandler implements OnModuleInit {
     // Notify user we are thinking (optional, but good UX)
     await ctx.replyWithChatAction('typing');
 
+    let searchingMsg: { message_id: number } | undefined;
+
     try {
       // 0. Detect locale (prefer user-selected i18n locale, fallback to Telegram language_code)
       const i18nLocale = await ctx.i18n.getLocale();
       const rawLocale = i18nLocale || ctx.from?.language_code || 'en';
       const locale = rawLocale.startsWith('ru') ? 'ru' : 'en';
+
+      // 0.1. Send "searching" placeholder message
+      const searchingText = ctx.t('searching');
+      searchingMsg = await ctx.reply(searchingText);
 
       // 1. Expand query for better retrieval (Qubic -> Qubic $QUBIC)
       const searchQuery = query.replace(/\bqubic\b/gi, 'Qubic $QUBIC');
@@ -131,7 +142,7 @@ export class CustomMessageHandler implements OnModuleInit {
       const sourceMap = new Map<string, number>();
 
       searchResults.forEach((res: any) => {
-        const name = res.payload?.filename;
+        const name = res.payload?.source || res.payload?.filename;
 
         if (name) {
           const score = res.score;
@@ -142,12 +153,17 @@ export class CustomMessageHandler implements OnModuleInit {
         }
       });
 
-      let finalResponse = answer;
+      const convertedAnswer = convertMarkdownToTelegramHtml(
+        answer,
+        this.logger,
+      );
+
+      let finalResponse = convertedAnswer;
       if (sourceMap.size > 0) {
         // Prepare localized header
         const headerRaw = locale === 'ru' ? '📚 Источники:' : '📚 Sources:';
         // Header is bold: <b>Header</b>
-        const header = `<b>${this.escapeHtml(headerRaw)}</b>`;
+        const header = `<b>${escapeHtml(headerRaw)}</b>`;
 
         // Append header
         finalResponse += `\n\n${header}\n`;
@@ -155,37 +171,54 @@ export class CustomMessageHandler implements OnModuleInit {
         sourceMap.forEach((score, name) => {
           const percent = Math.round(score * 100);
 
-          const escapedName = this.escapeHtml(name);
-          const escapedPercent = this.escapeHtml(`(${percent}%)`);
+          const escapedName = escapeHtml(name);
+          const escapedPercent = escapeHtml(`(${percent}%)`);
 
           // Using monospace for filename: <code>name</code>
           finalResponse += `• <code>${escapedName}</code> ${escapedPercent}\n`;
         });
       }
 
-      // 5. Reply
+      // 5. Reply (edit placeholder)
       try {
-        await ctx.reply(finalResponse, { parse_mode: 'HTML' });
+        if (ctx.chat?.id && searchingMsg?.message_id) {
+          await ctx.api.editMessageText(
+            ctx.chat.id,
+            searchingMsg.message_id,
+            finalResponse,
+            { parse_mode: 'HTML' },
+          );
+        } else {
+          await ctx.reply(finalResponse, { parse_mode: 'HTML' });
+        }
       } catch (sendError) {
         console.warn(
           'Failed to send with HTML, retrying as plain text...',
           sendError.message,
         );
-        await ctx.reply(finalResponse);
+        if (ctx.chat?.id && searchingMsg?.message_id) {
+          await ctx.api.editMessageText(
+            ctx.chat.id,
+            searchingMsg.message_id,
+            finalResponse,
+          );
+        } else {
+          await ctx.reply(finalResponse);
+        }
       }
     } catch (error) {
       console.error('Error in RAG handler:', error);
-      await ctx.reply(
-        'Sorry, I encountered an error while processing your request.',
-      );
+      const fallbackText =
+        'Sorry, I encountered an error while processing your request.';
+      if (ctx.chat?.id && searchingMsg?.message_id) {
+        await ctx.api.editMessageText(
+          ctx.chat.id,
+          searchingMsg.message_id,
+          fallbackText,
+        );
+      } else {
+        await ctx.reply(fallbackText);
+      }
     }
   };
-
-  // Helper to escape HTML special chars
-  private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
 }

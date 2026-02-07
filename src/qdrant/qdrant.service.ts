@@ -3,7 +3,7 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 
 import { DocumentChunk } from '../documents/chunking.service';
-import { EmbeddingsService } from 'src/embeddings/embeddings.service';
+import { EmbeddingsService } from '../embeddings/embeddings.service';
 
 @Injectable()
 export class QdrantService implements OnModuleInit {
