@@ -5,7 +5,7 @@ services:
     container_name: nest_rag_app
     restart: always
     env_file:
-      - .env.development
+      - .env
     environment:
       - QDRANT_URL=http://qdrant:6333  # Теперь используем имя сервиса!
       # Другие переменные из вашего .env
@@ -13,6 +13,21 @@ services:
       - qdrant
     volumes:
       - ./data:/app/data:ro
+      - ./documents:/app/documents:ro
+    networks:
+      - rag_network
+  ingest:
+    build: .
+    container_name: nest_rag_ingest
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      - qdrant
+    volumes:
+      - ./data:/app/data
       - ./documents:/app/documents:ro
     networks:
       - rag_network
