@@ -145,10 +145,30 @@ export class CustomMessageHandler implements OnModuleInit {
       // 4. Extract sources with scores
       const sourceMap = new Map<string, number>();
 
-      searchResults.forEach((res: any) => {
-        const name = res.payload?.source || res.payload?.filename;
+      const normalizeSourceName = (value: string): string => {
+        let name = value.replace(/\\/g, '/').trim();
+        name = name.replace(/^\.?\//, '');
+        const prefixes = [
+          'documents/',
+          'data/documents/',
+          'app/documents/',
+          '/app/documents/',
+          '/app/data/documents/',
+        ];
+        for (const prefix of prefixes) {
+          if (name.startsWith(prefix)) {
+            name = name.slice(prefix.length);
+            break;
+          }
+        }
+        return name;
+      };
 
-        if (name) {
+      searchResults.forEach((res: any) => {
+        const rawName = res.payload?.source || res.payload?.filename;
+
+        if (rawName) {
+          const name = normalizeSourceName(rawName);
           const score = res.score;
           // Keep the highest score for this filename
           if (!sourceMap.has(name) || score > sourceMap.get(name)!) {
