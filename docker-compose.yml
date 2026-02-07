@@ -14,6 +14,7 @@ services:
     volumes:
       - ./data:/app/data:ro
       - ./documents:/app/documents:ro
+      - ./storage:/app/storage
     networks:
       - rag_network
   ingest:
@@ -29,6 +30,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./documents:/app/documents:ro
+      - ./storage:/app/storage
     networks:
       - rag_network
 

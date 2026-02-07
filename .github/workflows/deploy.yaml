@@ -24,6 +24,7 @@ jobs:
             git pull --ff-only
             docker compose build --no-cache api
             docker compose up -d qdrant
+            mkdir -p /home/ubuntu/qubic/telegram-rag/storage
             mkdir -p /home/ubuntu/qubic/telegram-rag/data/documents/output/md
             mkdir -p /home/ubuntu/qubic/telegram-rag/data/documents/output/pdf
             docker compose run --rm ingest node dist/src/scripts/parse-documents.js
