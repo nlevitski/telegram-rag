@@ -56,29 +56,23 @@ export class CustomMessageHandler implements OnModuleInit {
     const query = ctx.message?.text || '';
     if (!query) return;
 
-    console.log('📨 CustomMessageHandler: Received message:', query);
-    console.log('📊 Session step:', ctx.session.step);
-
     // Skip if it's a command (starts with /)
     if (query.startsWith('/')) {
-      console.log('⏭️ Skipping: message is a command');
       return;
     }
 
     // Skip if it's a known button
     if (this.knownButtons.includes(query)) {
-      console.log('⏭️ Skipping: message is a known button');
       return;
     }
-
-    console.log('✅ Processing as RAG query:', query);
 
     // Notify user we are thinking (optional, but good UX)
     await ctx.replyWithChatAction('typing');
 
     try {
-      // 0. Detect locale
-      const rawLocale = ctx.from?.language_code || 'en';
+      // 0. Detect locale (prefer user-selected i18n locale, fallback to Telegram language_code)
+      const i18nLocale = await ctx.i18n.getLocale();
+      const rawLocale = i18nLocale || ctx.from?.language_code || 'en';
       const locale = rawLocale.startsWith('ru') ? 'ru' : 'en';
 
       // 1. Expand query for better retrieval (Qubic -> Qubic $QUBIC)

@@ -3,6 +3,7 @@ import { Bot } from 'grammy';
 import { DrizzleDB } from 'src/db/drizzle.provider';
 import { telegramUsers } from 'src/db/drizzle/schema';
 import { DocumentLoader } from 'src/document-loader/document-loader.service';
+import { UserService } from 'src/db/user.service';
 import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
 import { MyContext } from 'src/telegram/types/session';
 import { convert } from 'telegram-markdown-v2';
@@ -36,6 +37,7 @@ export class MainCommandsService implements OnModuleInit {
     private readonly documentLoader: DocumentLoader,
     @Inject(DrizzleDB) private readonly db: DrizzleDB,
     private readonly keyboardManager: KeyboardManager,
+    private readonly userService: UserService,
   ) {}
 
   onModuleInit() {
@@ -160,6 +162,11 @@ export class MainCommandsService implements OnModuleInit {
 
   public setLocaleRuCommand = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('ru');
+    ctx.session.__language_code = 'ru';
+    ctx.session.locale = 'ru';
+    if (ctx.from?.id) {
+      this.userService.updateUser(ctx.from.id, { locale: 'ru' });
+    }
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
       return await ctx.reply(ctx.t('settings'), {
@@ -171,6 +178,11 @@ export class MainCommandsService implements OnModuleInit {
 
   public setLocaleEnCommand = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');
+    ctx.session.__language_code = 'en';
+    ctx.session.locale = 'en';
+    if (ctx.from?.id) {
+      this.userService.updateUser(ctx.from.id, { locale: 'en' });
+    }
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
       return await ctx.reply(ctx.t('settings'), {
@@ -180,7 +192,6 @@ export class MainCommandsService implements OnModuleInit {
     await ctx.reply(ctx.t('current_locale'));
   };
   public echoStepCommand = async (ctx: MyContext) => {
-    console.log('CTX STEP: ', ctx.session);
     await ctx.reply(ctx.session.step || 'no step');
   };
   public askAnyCommand = async (ctx: MyContext) => {

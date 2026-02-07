@@ -5,10 +5,9 @@ services:
     container_name: nest_rag_app
     restart: always
     env_file:
-      - .env
+      - .env.development
     environment:
       - QDRANT_URL=http://qdrant:6333  # Теперь используем имя сервиса!
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       # Другие переменные из вашего .env
     depends_on:
       - qdrant

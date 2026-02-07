@@ -23,7 +23,6 @@ export class UserService {
   public findOrCreateUser(
     telegramUserData: TelegramUserContextFrom,
   ): TelegramUser | InsertTelegramUser {
-    console.log('telegramUserData: -->', telegramUserData);
     const user = this.db
       .select()
       .from(telegramUsers)

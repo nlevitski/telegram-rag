@@ -17,7 +17,7 @@ export class IngestionService {
     'data/documents/output/md',
   );
 
-  constructor(private readonly qdrantService: QdrantService) { }
+  constructor(private readonly qdrantService: QdrantService) {}
 
   async ingestAll() {
     this.logger.log('Starting full ingestion...');

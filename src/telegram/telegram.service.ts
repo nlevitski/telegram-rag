@@ -4,6 +4,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Bot, Context } from 'grammy';
 
 @Injectable()
@@ -11,10 +12,23 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   private isRunning = false;
   private readonly logger = new Logger(TelegramService.name);
 
-  constructor(private readonly bot: Bot<Context>) {}
+  constructor(
+    private readonly bot: Bot<Context>,
+    private readonly configService: ConfigService,
+  ) {}
 
   async onModuleInit() {
     this.logger.log('🔍 TelegramService onModuleInit called');
+    const token = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+    if (token) {
+      const masked =
+        token.length > 10
+          ? `${token.slice(0, 4)}...${token.slice(-4)}`
+          : token;
+      this.logger.log(`🔐 Telegram token: ${masked}`);
+    } else {
+      this.logger.warn('⚠️ TELEGRAM_BOT_TOKEN is not set');
+    }
 
     if (this.isRunning) {
       this.logger.log('Bot is already running, skipping startup');

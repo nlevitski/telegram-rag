@@ -8,10 +8,14 @@ import { IngestionModule } from './ingestion/ingestion.module';
 import { QdrantModule } from './qdrant/qdrant.module';
 import { EmbeddingModule } from './embeddings/embeddings.module';
 
+const envFile =
+  process.env.NODE_ENV === 'production' ? '.env' : '.env.development';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [envFile, '.env'],
     }),
     DatabaseModule.forRoot(),
     TelegramModule.forRoot(),

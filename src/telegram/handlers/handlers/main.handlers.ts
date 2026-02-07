@@ -3,6 +3,7 @@ import { MainCommandsService } from './../commands/main.commands';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
+import { UserService } from 'src/db/user.service';
 
 @Injectable()
 export class MainHandlersService implements OnModuleInit {
@@ -27,6 +28,7 @@ export class MainHandlersService implements OnModuleInit {
     private readonly bot: Bot<MyContext>,
     private readonly mainCommandsService: MainCommandsService,
     private readonly keyboardManager: KeyboardManager,
+    private readonly userService: UserService,
   ) { }
   onModuleInit() {
     this.hearsRegister();
@@ -75,6 +77,11 @@ export class MainHandlersService implements OnModuleInit {
   };
   private setEnLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('en');
+    ctx.session.__language_code = 'en';
+    ctx.session.locale = 'en';
+    if (ctx.from?.id) {
+      this.userService.updateUser(ctx.from.id, { locale: 'en' });
+    }
     if (ctx.session.step === 'select_language') {
       return this.replySettings(ctx);
     }
@@ -84,6 +91,11 @@ export class MainHandlersService implements OnModuleInit {
   };
   private setRuLocale = async (ctx: MyContext) => {
     await ctx.i18n.setLocale('ru');
+    ctx.session.__language_code = 'ru';
+    ctx.session.locale = 'ru';
+    if (ctx.from?.id) {
+      this.userService.updateUser(ctx.from.id, { locale: 'ru' });
+    }
     if (ctx.session.step === 'select_language') {
       return this.replySettings(ctx);
     }

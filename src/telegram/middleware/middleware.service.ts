@@ -7,6 +7,7 @@ import { MyContext, MyConversation } from '../types/session';
 // import { ConversationManager } from '../conversation/converstion.service';
 import { conversations, createConversation } from '@grammyjs/conversations';
 import { KeyboardManager } from '../keybords/keyboard.service';
+import { UserService } from 'src/db/user.service';
 
 @Injectable()
 export class MiddlewareService implements OnModuleInit {
@@ -16,11 +17,29 @@ export class MiddlewareService implements OnModuleInit {
     private readonly sessionStorage: SessionStorageAdapter,
     private readonly keyboardManager: KeyboardManager,
     private readonly documentLoader: DocumentLoader,
+    private readonly userService: UserService,
     // private readonly conversationManager: ConversationManager,
   ) {}
   onModuleInit() {
+    this.setupUserSync();
     this.setupSession();
     this.setupMiddlewares();
+  }
+  private setupUserSync() {
+    this.bot.use(async (ctx, next) => {
+      if (ctx.from) {
+        this.userService.findOrCreateUser({
+          id: ctx.from.id,
+          username: ctx.from.username,
+          first_name: ctx.from.first_name,
+          last_name: ctx.from.last_name,
+          language_code: ctx.from.language_code,
+          is_bot: ctx.from.is_bot,
+          is_premium: (ctx.from as { is_premium?: boolean }).is_premium,
+        });
+      }
+      await next();
+    });
   }
   private setupSession() {
     this.bot.use(
