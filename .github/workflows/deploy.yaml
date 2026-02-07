@@ -23,6 +23,7 @@ jobs:
             cd /home/ubuntu/qubic/telegram-rag
             git fetch --all
             git reset --hard origin/main
+            docker compose down --remove-orphans
             docker compose build --no-cache api ingest
             docker compose up -d qdrant
             mkdir -p /home/ubuntu/qubic/telegram-rag/storage
@@ -30,5 +31,5 @@ jobs:
             mkdir -p /home/ubuntu/qubic/telegram-rag/data/documents/output/pdf
             docker compose run --rm ingest node dist/src/scripts/parse-documents.js
             docker compose run --rm ingest node dist/src/scripts/ingest-documents.js
-            docker compose up -d --force-recreate api
+            docker compose up -d --force-recreate --build api
           EOF
