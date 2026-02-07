@@ -12,7 +12,7 @@ WORKDIR /app
 FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 # Устанавливаем зависимости (включая dev для билда)
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts=false
 
 # --- Этап сборки ---
 FROM base AS builder
