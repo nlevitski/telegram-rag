@@ -22,9 +22,9 @@ jobs:
             set -e
             cd /home/ubuntu/qubic/telegram-rag
             git pull --ff-only
-            docker compose build api
+            docker compose build --no-cache api
             docker compose up -d qdrant
             docker compose run --rm -v /home/ubuntu/qubic/telegram-rag/data:/app/data api node dist/src/scripts/parse-documents.js
             docker compose run --rm api node dist/src/scripts/ingest-documents.js
-            docker compose up -d api
+            docker compose up -d --force-recreate api
           EOF

@@ -40,6 +40,8 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     // Команды автоматически регистрируются через MainCommandsService
 
     try {
+      this.logger.log('🧹 Clearing webhook (ensure long polling)...');
+      await this.bot.api.deleteWebhook({ drop_pending_updates: true });
       this.logger.log('🤖 Attempting to start bot...');
       await this.bot.start({
         drop_pending_updates: true,
