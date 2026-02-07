@@ -21,8 +21,9 @@ jobs:
           ssh -p 22 "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" << 'EOF'
             set -e
             cd /home/ubuntu/qubic/telegram-rag
-            git pull --ff-only
-            docker compose build --no-cache api
+            git fetch --all
+            git reset --hard origin/main
+            docker compose build --no-cache api ingest
             docker compose up -d qdrant
             mkdir -p /home/ubuntu/qubic/telegram-rag/storage
             mkdir -p /home/ubuntu/qubic/telegram-rag/data/documents/output/md

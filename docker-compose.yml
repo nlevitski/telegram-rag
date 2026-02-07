@@ -12,7 +12,7 @@ services:
     depends_on:
       - qdrant
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data
       - ./documents:/app/documents:ro
       - ./storage:/app/storage
     networks:
