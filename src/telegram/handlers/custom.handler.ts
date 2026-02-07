@@ -84,7 +84,11 @@ export class CustomMessageHandler implements OnModuleInit {
 
       // 0.1. Send "searching" placeholder message
       const searchingText = ctx.t('searching');
-      searchingMsg = await ctx.reply(searchingText);
+      const searchingHtml = convertMarkdownToTelegramHtml(
+        searchingText,
+        this.logger,
+      );
+      searchingMsg = await ctx.reply(searchingHtml, { parse_mode: 'HTML' });
 
       // 1. Expand query for better retrieval (Qubic -> Qubic $QUBIC)
       const searchQuery = query.replace(/\bqubic\b/gi, 'Qubic $QUBIC');
@@ -210,14 +214,19 @@ export class CustomMessageHandler implements OnModuleInit {
       console.error('Error in RAG handler:', error);
       const fallbackText =
         'Sorry, I encountered an error while processing your request.';
+      const fallbackHtml = convertMarkdownToTelegramHtml(
+        fallbackText,
+        this.logger,
+      );
       if (ctx.chat?.id && searchingMsg?.message_id) {
         await ctx.api.editMessageText(
           ctx.chat.id,
           searchingMsg.message_id,
-          fallbackText,
+          fallbackHtml,
+          { parse_mode: 'HTML' },
         );
       } else {
-        await ctx.reply(fallbackText);
+        await ctx.reply(fallbackHtml, { parse_mode: 'HTML' });
       }
     }
   };

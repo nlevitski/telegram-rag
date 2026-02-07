@@ -5,7 +5,7 @@ import { DocumentLoader } from 'src/document-loader/document-loader.service';
 import { UserService } from 'src/db/user.service';
 import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
 import { MyContext } from 'src/telegram/types/session';
-import { convert } from 'telegram-markdown-v2';
+import { convertMarkdownToTelegramHtml } from 'src/telegram/utils/telegram-html';
 
 export type CommandDescriptionItem = {
   command: string;
@@ -64,9 +64,22 @@ export class MainCommandsService implements OnModuleInit {
     this.bot.command('step', this.echoStepCommand);
   }
 
+  private toHtml(text: string) {
+    return convertMarkdownToTelegramHtml(text, this.logger);
+  }
+
+  private replyHtml(
+    ctx: MyContext,
+    text: string,
+    options?: Parameters<MyContext['reply']>[1],
+  ) {
+    const html = this.toHtml(text);
+    return ctx.reply(html, { ...(options || {}), parse_mode: 'HTML' });
+  }
+
   public startCommand = async (ctx: MyContext) => {
     ctx.session.step = 'main_menu';
-    await ctx.reply(ctx.t('greeting'), {
+    await this.replyHtml(ctx, ctx.t('greeting'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
@@ -77,17 +90,17 @@ export class MainCommandsService implements OnModuleInit {
       locale,
     );
 
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
   public settingsCommand = async (ctx: MyContext) => {
     ctx.session.step = 'settings';
-    await ctx.reply(ctx.t('settings'), {
+    await this.replyHtml(ctx, ctx.t('settings'), {
       reply_markup: this.keyboardManager.getSettingsMenu(ctx),
     });
   };
   public selectLocaleCommand = async (ctx: MyContext) => {
     ctx.session.step = 'select_language';
-    await ctx.reply(ctx.t('select_language'), {
+    await this.replyHtml(ctx, ctx.t('select_language'), {
       reply_markup: this.keyboardManager.getLanguageMenu(ctx),
     });
   };
@@ -97,8 +110,7 @@ export class MainCommandsService implements OnModuleInit {
       'commands/about',
       locale,
     );
-    const md = convert(result, 'keep');
-    await ctx.reply(md || 'content non found');
+    await this.replyHtml(ctx, result || 'content non found');
   };
   public communityCommand = async (ctx: MyContext) => {
     const locale = await ctx.i18n.getLocale();
@@ -106,7 +118,7 @@ export class MainCommandsService implements OnModuleInit {
       'commands/community',
       locale,
     );
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
 
   public educationCommand = async (ctx: MyContext) => {
@@ -119,7 +131,7 @@ export class MainCommandsService implements OnModuleInit {
       'commands/mining',
       locale,
     );
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
   public priceAndMarketCommand = async (ctx: MyContext) => {
     const locale = await ctx.i18n.getLocale();
@@ -127,7 +139,7 @@ export class MainCommandsService implements OnModuleInit {
       'commands/price_and_market',
       locale,
     );
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
   public technologyCommand = async (ctx: MyContext) => {
     const locale = await ctx.i18n.getLocale();
@@ -135,7 +147,7 @@ export class MainCommandsService implements OnModuleInit {
       'commands/technology',
       locale,
     );
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
   public nftCommand = async (ctx: MyContext) => {
     const locale = await ctx.i18n.getLocale();
@@ -143,17 +155,17 @@ export class MainCommandsService implements OnModuleInit {
       'commands/nft',
       locale,
     );
-    await ctx.reply(content);
+    await this.replyHtml(ctx, content);
   };
   public backCommand = async (ctx: MyContext) => {
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
-      return await ctx.reply(ctx.t('settings'), {
+      return await this.replyHtml(ctx, ctx.t('settings'), {
         reply_markup: this.keyboardManager.getSettingsMenu(ctx),
       });
     }
     ctx.session.step = 'main_menu';
-    return await ctx.reply(ctx.t('back'), {
+    return await this.replyHtml(ctx, ctx.t('back'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
@@ -167,11 +179,11 @@ export class MainCommandsService implements OnModuleInit {
     }
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
-      return await ctx.reply(ctx.t('settings'), {
+      return await this.replyHtml(ctx, ctx.t('settings'), {
         reply_markup: this.keyboardManager.getSettingsMenu(ctx),
       });
     }
-    await ctx.reply(ctx.t('current_locale'));
+    await this.replyHtml(ctx, ctx.t('current_locale'));
   };
 
   public setLocaleEnCommand = async (ctx: MyContext) => {
@@ -183,17 +195,17 @@ export class MainCommandsService implements OnModuleInit {
     }
     if (ctx.session.step === 'select_language') {
       ctx.session.step = 'settings';
-      return await ctx.reply(ctx.t('settings'), {
+      return await this.replyHtml(ctx, ctx.t('settings'), {
         reply_markup: this.keyboardManager.getSettingsMenu(ctx),
       });
     }
-    await ctx.reply(ctx.t('current_locale'));
+    await this.replyHtml(ctx, ctx.t('current_locale'));
   };
   public echoStepCommand = async (ctx: MyContext) => {
-    await ctx.reply(ctx.session.step || 'no step');
+    await this.replyHtml(ctx, ctx.session.step || 'no step');
   };
   public askAnyCommand = async (ctx: MyContext) => {
-    return await ctx.reply(ctx.t('askAnyQuestion'), {
+    return await this.replyHtml(ctx, ctx.t('askAnyQuestion'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };

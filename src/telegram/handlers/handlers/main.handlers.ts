@@ -4,6 +4,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Bot } from 'grammy';
 import { KeyboardManager } from 'src/telegram/keybords/keyboard.service';
 import { UserService } from 'src/db/user.service';
+import { convertMarkdownToTelegramHtml } from 'src/telegram/utils/telegram-html';
 
 @Injectable()
 export class MainHandlersService implements OnModuleInit {
@@ -33,6 +34,16 @@ export class MainHandlersService implements OnModuleInit {
   onModuleInit() {
     this.hearsRegister();
   }
+
+  private replyHtml(
+    ctx: MyContext,
+    text: string,
+    options?: Parameters<MyContext['reply']>[1],
+  ) {
+    const html = convertMarkdownToTelegramHtml(text);
+    return ctx.reply(html, { ...(options || {}), parse_mode: 'HTML' });
+  }
+
   private hearsRegister() {
     this.bot.hears(this.hears.about, this.mainCommandsService.aboutCommand);
     this.bot.hears(
@@ -71,7 +82,7 @@ export class MainHandlersService implements OnModuleInit {
     this.bot.hears(this.hears.ask, this.mainCommandsService.askAnyCommand);
   }
   private doneEducation = async (ctx: MyContext) => {
-    await ctx.reply(ctx.t('main_menu'), {
+    await this.replyHtml(ctx, ctx.t('main_menu'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
@@ -85,7 +96,7 @@ export class MainHandlersService implements OnModuleInit {
     if (ctx.session.step === 'select_language') {
       return this.replySettings(ctx);
     }
-    await ctx.reply(ctx.t('current_locale'), {
+    await this.replyHtml(ctx, ctx.t('current_locale'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
@@ -99,13 +110,13 @@ export class MainHandlersService implements OnModuleInit {
     if (ctx.session.step === 'select_language') {
       return this.replySettings(ctx);
     }
-    await ctx.reply(ctx.t('current_locale'), {
+    await this.replyHtml(ctx, ctx.t('current_locale'), {
       reply_markup: this.keyboardManager.getMainMenu(ctx),
     });
   };
   private replySettings = async (ctx: MyContext) => {
     ctx.session.step = 'settings';
-    await ctx.reply(ctx.t('current_locale'), {
+    await this.replyHtml(ctx, ctx.t('current_locale'), {
       reply_markup: this.keyboardManager.getSettingsMenu(ctx),
     });
   };

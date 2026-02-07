@@ -8,6 +8,7 @@ import { MyContext, MyConversation } from '../types/session';
 import { conversations, createConversation } from '@grammyjs/conversations';
 import { KeyboardManager } from '../keybords/keyboard.service';
 import { UserService } from 'src/db/user.service';
+import { convertMarkdownToTelegramHtml } from '../utils/telegram-html';
 
 @Injectable()
 export class MiddlewareService implements OnModuleInit {
@@ -57,6 +58,15 @@ export class MiddlewareService implements OnModuleInit {
     this.bot.use(this.i18n);
     this.bot.use(conversations());
     this.bot.use(createConversation(this.education));
+  }
+
+  private replyHtml(
+    ctx: MyContext,
+    text: string,
+    options?: Parameters<MyContext['reply']>[1],
+  ) {
+    const html = convertMarkdownToTelegramHtml(text);
+    return ctx.reply(html, { ...(options || {}), parse_mode: 'HTML' });
   }
   // private dialog = async (conversation: MyConversation, ctx: MyContext) => {
   //   // const locale = await conversation.external((ctx) => ctx.t('back'));
@@ -129,11 +139,11 @@ export class MiddlewareService implements OnModuleInit {
       }));
 
     if (options.step === 1) {
-      await ctx.reply(document, { reply_markup: startKeyboard });
+      await this.replyHtml(ctx, document, { reply_markup: startKeyboard });
     } else if (options.step < options.totalSteps) {
-      await ctx.reply(document, { reply_markup: processKeyboard });
+      await this.replyHtml(ctx, document, { reply_markup: processKeyboard });
     } else if (options.step === options.totalSteps) {
-      await ctx.reply(document, { reply_markup: endKeyboard });
+      await this.replyHtml(ctx, document, { reply_markup: endKeyboard });
     }
 
     const { message } = await conversations.waitFor('message:text');
@@ -146,7 +156,7 @@ export class MiddlewareService implements OnModuleInit {
             backMessage: ctx.t('back'),
           }),
         );
-        await ctx.reply(backMessage, {
+        await this.replyHtml(ctx, backMessage, {
           reply_markup: mainMenuKeyboard,
         });
         return;
@@ -179,7 +189,7 @@ export class MiddlewareService implements OnModuleInit {
     const useNavButtonsMessage = await conversations.external((ctx) =>
       ctx.t('use_nav_buttons'),
     );
-    await ctx.reply(useNavButtonsMessage);
+    await this.replyHtml(ctx, useNavButtonsMessage);
     await this.handleStep(conversations, ctx, options);
 
     // const keyboard = await conversations.external(() => {
@@ -273,7 +283,7 @@ export class MiddlewareService implements OnModuleInit {
         doneMessage: ctx.t('done_education'),
       }),
     );
-    await ctx.reply(doneMessage, {
+    await this.replyHtml(ctx, doneMessage, {
       reply_markup: mainMenuKeyboard,
     });
     // const translations = await conversation.external(() => ({
